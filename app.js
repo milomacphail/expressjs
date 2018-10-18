@@ -1,8 +1,9 @@
 var express = require('express');
 var app = express();
 
-var logger = require('./logger');
-app.use(logger);
+var bodyParser = require('body-parser');
+var parseUrlencoded = bodyParser.urlencoded({ extended: false });
+
 app.use(express.static('public'));
 
 var blocks = {
@@ -10,6 +11,17 @@ var blocks = {
     'Movable': 'Capable of being moved',
     'Rotating': 'Moving in a circle around its center'
 };
+
+app.delete('/blocks/:name', function(request, response){
+    delete blocks[request.blockName];
+    response.sendStatus(200);
+});
+
+app.post('/blocks', parseUrlencoded, function(request, response){
+   var newBlock = request.body;
+   blocks[newBlock.name] = newBlock.description;
+   response.status(201).json(newBlock.name);
+});
 
 var locations = {
     'Fixed': 'First floor',
